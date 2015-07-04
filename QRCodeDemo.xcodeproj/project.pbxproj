@@ -13,6 +13,7 @@
 		A0B3C5641B45963300228F4F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0B3C5621B45963300228F4F /* LaunchScreen.storyboard */; };
 		A0B3C56F1B45963300228F4F /* QRCodeDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B3C56E1B45963300228F4F /* QRCodeDemoTests.swift */; };
 		A0B3C57A1B45963300228F4F /* QRCodeDemoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B3C5791B45963300228F4F /* QRCodeDemoUITests.swift */; };
+		A0B3C5881B45A4E300228F4F /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B3C5871B45A4E300228F4F /* QRCodeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +46,7 @@
 		A0B3C5751B45963300228F4F /* QRCodeDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QRCodeDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0B3C5791B45963300228F4F /* QRCodeDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeDemoUITests.swift; sourceTree = "<group>"; };
 		A0B3C57B1B45963300228F4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A0B3C5871B45A4E300228F4F /* QRCodeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 			children = (
 				A0B3C5591B45963300228F4F /* AppDelegate.swift */,
 				A0B3C55B1B45963300228F4F /* ViewController.swift */,
+				A0B3C5871B45A4E300228F4F /* QRCodeView.swift */,
 				A0B3C5601B45963300228F4F /* Assets.xcassets */,
 				A0B3C5621B45963300228F4F /* LaunchScreen.storyboard */,
 				A0B3C5651B45963300228F4F /* Info.plist */,
@@ -251,6 +254,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0B3C5881B45A4E300228F4F /* QRCodeView.swift in Sources */,
 				A0B3C55C1B45963300228F4F /* ViewController.swift in Sources */,
 				A0B3C55A1B45963300228F4F /* AppDelegate.swift in Sources */,
 			);

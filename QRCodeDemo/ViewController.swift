@@ -7,66 +7,105 @@
 //
 
 import UIKit
+import AVFoundation
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
-    // 扫描线高度偏移布局
-    var scanHeightCon: NSLayoutConstraint?
+//    // 扫描线高度偏移布局
+//    var scanHeightCon: NSLayoutConstraint?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // 背景颜色
-        view.backgroundColor = UIColor.whiteColor()
         setupView()
     }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
-        scanAnimation()
+        backgroundView.scanAnimation()
     }
     
     func setupView() {
-        view.addSubview(cameraView)
-        cameraView.addSubview(scanLineView)
-        
-        // 添加约束
-        // 照相框图片
-        cameraView.translatesAutoresizingMaskIntoConstraints = false
-        view.addConstraint(NSLayoutConstraint(item: cameraView, attribute: NSLayoutAttribute.CenterX, relatedBy: NSLayoutRelation.Equal, toItem: view, attribute: NSLayoutAttribute.CenterX, multiplier: 1.0, constant: 0))
-        view.addConstraint(NSLayoutConstraint(item: cameraView, attribute: NSLayoutAttribute.CenterY, relatedBy: NSLayoutRelation.Equal, toItem: view, attribute: NSLayoutAttribute.CenterY, multiplier: 1.0, constant: 0))
-        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:[subView(250)]", options: NSLayoutFormatOptions.AlignAllBaseline, metrics: nil, views: ["subView": cameraView]))
-        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:[subView(250)]", options: NSLayoutFormatOptions.AlignAllBaseline, metrics: nil, views: ["subView": cameraView]))
-        
-        // 扫描线图片
-        scanLineView.translatesAutoresizingMaskIntoConstraints = false
-        cameraView.addConstraint(NSLayoutConstraint(item: scanLineView, attribute: NSLayoutAttribute.CenterX, relatedBy: NSLayoutRelation.Equal, toItem: cameraView, attribute: NSLayoutAttribute.CenterX, multiplier: 1.0, constant: 0))
-        scanHeightCon = NSLayoutConstraint(item: scanLineView, attribute: NSLayoutAttribute.CenterY, relatedBy: NSLayoutRelation.Equal, toItem: cameraView, attribute: NSLayoutAttribute.CenterY, multiplier: 1.0, constant: -250)
-        cameraView.addConstraint(scanHeightCon!)
-        cameraView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:[subView(250)]", options: NSLayoutFormatOptions.AlignAllBaseline, metrics: nil, views: ["subView": scanLineView]))
-        cameraView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:[subView(250)]", options: NSLayoutFormatOptions.AlignAllBaseline, metrics: nil, views: ["subView": scanLineView]))
-    }
-    
-    // 扫描动画
-    func scanAnimation() {
-        scanHeightCon!.constant = 250
-        UIView.animateWithDuration(1.5) { () -> Void in
-            UIView.setAnimationRepeatCount(MAXFLOAT)
-            self.view.layoutIfNeeded()
-        }
+        view.addSubview(backgroundView)
     }
 
     // MARK: - 懒加载控件
-    // 照相框图片
-    lazy var cameraView: UIImageView = {
-        let imgView = UIImageView(image: UIImage(named: "qrcode_border"))
-        imgView.clipsToBounds = true
-        return imgView
-    }()
-    // 扫描线图片
-    lazy var scanLineView: UIImageView = {
-        let imgView = UIImageView(image: UIImage(named: "qrcode_scanline_qrcode"))
-        return imgView
+    // 背景容器View
+    lazy var backgroundView: QRCodeView = {
+        let view = QRCodeView(frame: self.view.bounds)
+        view.backgroundColor = UIColor.whiteColor()
+        return view
     }()
     
+    // MARK - 二维码扫描
+    // 开始扫描
+    func startScan() {
+        session.startRunning()
+    }
+    
+    // 设置图层
+    private func setupLayers() {
+        // 设置图层样式
+        drawLayer.frame = view.bounds
+        view.layer.insertSublayer(drawLayer, atIndex: 0)
+        
+        // 设置预览图层
+        previewLayer.frame = view.bounds
+        // 设置图层填充模式
+        previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+        // 将图层添加到当前图层
+        view.layer.insertSublayer(previewLayer, atIndex: 0)
+    }
+    
+    private func setupSession() {
+        // 判断是否加入设备
+        if !session.canAddInput(inputDevice) {
+            return
+        }
+        
+        // 判断能否添加输出数据
+        if !session.canAddOutput(outputData) {
+            return
+        }
+        
+        // 添加设备
+        session.addInput(inputDevice)
+        session.addOutput(outputData)
+        
+        // 设置检测数据类型，检测所有支持的数据格式
+        outputData.metadataObjectTypes = outputData.availableMetadataObjectTypes
+        
+        // 设置数据的代理
+        outputData.setMetadataObjectsDelegate(self, queue: dispatch_get_main_queue())
+    }
+    
+    // MARK: - AVCaptureMetadataOutputObjectsDelegate
+    func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
+        print(metadataObjects)
+    }
+    
+    // MARK - 懒加载
+    // 绘图图层
+    lazy var drawLayer: CALayer = CALayer()
+    
+    // 预览视图，依赖于session的
+    lazy var previewLayer: AVCaptureVideoPreviewLayer = AVCaptureVideoPreviewLayer(session: self.session)
+    
+    // session桥梁
+    lazy var session: AVCaptureSession = AVCaptureSession()
+    
+    // 输入设备
+    lazy var inputDevice: AVCaptureDeviceInput? = {
+        let device = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)
+        
+        do {
+            return try AVCaptureDeviceInput(device: device)
+        } catch {
+            print(error)
+            return nil
+        }
+        }()
+    
+    // 输出数据
+    lazy var outputData: AVCaptureMetadataOutput = AVCaptureMetadataOutput()
 }
 
