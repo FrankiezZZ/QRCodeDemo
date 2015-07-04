@@ -17,11 +17,14 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        setupLayers()
+        setupSession()
     }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         backgroundView.scanAnimation()
+        startScan()
     }
     
     func setupView() {
@@ -46,14 +49,14 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     private func setupLayers() {
         // 设置图层样式
         drawLayer.frame = view.bounds
-        view.layer.insertSublayer(drawLayer, atIndex: 0)
+        backgroundView.layer.insertSublayer(drawLayer, atIndex: 0)
         
         // 设置预览图层
         previewLayer.frame = view.bounds
         // 设置图层填充模式
         previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
         // 将图层添加到当前图层
-        view.layer.insertSublayer(previewLayer, atIndex: 0)
+        backgroundView.layer.insertSublayer(previewLayer, atIndex: 0)
     }
     
     private func setupSession() {
@@ -80,7 +83,18 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     // MARK: - AVCaptureMetadataOutputObjectsDelegate
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
-        print(metadataObjects)
+        for object in metadataObjects {
+            // 判断识别对象类型
+            if object is AVMetadataMachineReadableCodeObject {
+                // 转换数据类型
+                let codeObject = previewLayer.transformedMetadataObjectForMetadataObject(object as! AVMetadataObject) as! AVMetadataMachineReadableCodeObject
+                print(codeObject.stringValue)
+                backgroundView.addSubview(resultLabel!)
+                resultLabel!.frame.origin.y = 40
+                resultLabel!.text = codeObject.stringValue
+                resultLabel!.sizeToFit()
+            }
+        }
     }
     
     // MARK - 懒加载
@@ -104,6 +118,14 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             return nil
         }
         }()
+    
+    // 输出结果的Label
+    lazy var resultLabel: UILabel? = {
+        let label = UILabel()
+        label.font = UIFont.systemFontOfSize(14)
+        label.textColor = UIColor.whiteColor()
+        return label
+    }()
     
     // 输出数据
     lazy var outputData: AVCaptureMetadataOutput = AVCaptureMetadataOutput()
